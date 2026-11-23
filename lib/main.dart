@@ -17,6 +17,17 @@ void main() {
 const String kUiFont = 'Vazirmatn';
 const String kNastaliqFont = 'IranNastaliq';
 const String kTelegramUsername = 'pouyabaniadam';
+const int kSessionSchemaVersion = 2;
+
+String toPersianDigits(Object input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  var text = input.toString();
+  for (int i = 0; i < english.length; i++) {
+    text = text.replaceAll(english[i], persian[i]);
+  }
+  return text;
+}
 
 class AxonRecorderApp extends StatelessWidget {
   const AxonRecorderApp({super.key});
@@ -42,68 +53,167 @@ class PromptItem {
   final String category;
   final String slug;
   final String title;
+  final String phrase;
   final String desc;
-  const PromptItem(this.category, this.slug, this.title, this.desc);
+  final bool isNegative;
+
+  const PromptItem({
+    required this.category,
+    required this.slug,
+    required this.title,
+    required this.phrase,
+    required this.desc,
+    this.isNegative = false,
+  });
 }
 
 const List<PromptItem> kPrompts = [
-  PromptItem('لحن عادی', 'normal_01', '۱. عادی و طبیعی', 'خیلی معمولی و روزمره بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'fast_01', '۲. سریع و خودمونی', 'کمی تندتر و محاوره‌ای بگو: «هی آکسون»'),
-  PromptItem('صدای آرام', 'quiet_01', '۳. آروم و یواش', 'با صدای آروم بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'loud_01', '۴. بلند و رسا', 'با صدای بلند و واضح بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'question_01', '۵. لحن پرسشی', 'انگار سوال می‌پرسی بگو: «هی آکسون؟»'),
-  PromptItem('سناریو واقعی', 'before_cmd', '۶. قبل از دستور', 'انگار می‌خوای کاری بهش بسپاری بگو: «هی آکسون»'),
-
-  PromptItem('لحن عادی', 'normal_02', '۷. عادی (تکرار دوم)', 'دوباره معمولی و طبیعی بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'very_fast', '۸. خیلی سریع و سرهم', 'پشت سر هم و سریع بگو: «هی‌آکسون»'),
-  PromptItem('صدای آرام', 'whisper_01', '۹. نجوا / نصف شب', 'خیلی یواش و نزدیک میکروفون بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'energetic_01', '۱۰. پرانرژی و محکم', 'خیلی پرانرژی و محکم بگو: «هی آکسون!»'),
-  PromptItem('تنوع لحن', 'tired_stretched', '۱۱. خسته و کشیده', 'با لحن خسته و ریلکس بگو: «هِــی آکسون»'),
-  PromptItem('سناریو واقعی', 'short_pause', '۱۲. با مکث کوتاه وسطش', 'با نیم ثانیه مکث بگو: «هی... آکسون»'),
-
-  PromptItem('لحن عادی', 'normal_03', '۱۳. عادی (تکرار سوم)', 'یک بار دیگر معمولی بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'far_2m_01', '۱۴. صدا زدن از فاصله ۲ متری', 'کمی از سیستم فاصله بگیر و بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'friendly_smile', '۱۵. خوشحال و صمیمی', 'با لبخند و لحن صمیمی بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'hurried', '۱۶. عجله‌ای', 'انگار عجله داری بگو: «هی آکسون!»'),
-  PromptItem('صدای آرام', 'soft_clear', '۱۷. ملایم و شمرده', 'آروم و شمرده بگو: «هی آکسون»'),
-  PromptItem('سناریو واقعی', 'turned_right', '۱۸. چرخیده به سمت راست', 'سرت رو بچرخون سمت راست و بگو: «هی آکسون»'),
-
-  PromptItem('لحن عادی', 'normal_04', '۱۹. عادی (تکرار چهارم)', 'معمولی و روان بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'serious_cmd', '۲۰. جدی و دستوری', 'با لحن جدی و قاطع بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'fast_short', '۲۱. سریع و کوتاه', 'خیلی سریع و بریده بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'loud_02', '۲۲. بلند (تکرار دوم)', 'دوباره با صدای بلند بگو: «هی آکسون»'),
-  PromptItem('صدای آرام', 'morning_voice', '۲۳. صدای صبحگاهی', 'انگار تازه بیدار شدی بگو: «هی آکسون»'),
-  PromptItem('سناریو واقعی', 'turned_left', '۲۴. چرخیده به سمت چپ', 'سرت رو بچرخون سمت چپ و بگو: «هی آکسون»'),
-
-  PromptItem('لحن عادی', 'normal_05', '۲۵. عادی (تکرار پنجم)', 'دوباره عادی بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'question_02', '۲۶. لحن پرسشی (تکرار)', 'دوباره با لحن سوالی بگو: «هی آکسون؟»'),
-  PromptItem('سناریو واقعی', 'leaned_back', '۲۷. تکیه داده به صندلی', 'کاملاً لم بده و بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'busy_fast', '۲۸. وسط کار با عجله', 'انگار سرت شلوغه بگو: «هی آکسون»'),
-  PromptItem('صدای آرام', 'quiet_02', '۲۹. آروم (تکرار دوم)', 'دوباره آروم بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'energetic_02', '۳۰. پرانرژی (تکرار دوم)', 'دوباره با انرژی بالا بگو: «هی آکسون!»'),
-
-  PromptItem('لحن عادی', 'normal_06', '۳۱. عادی (تکرار ششم)', 'با ریتم طبیعی خودت بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'stretch_axon', '۳۲. کشیده روی آکسون', 'بگو: «هی آکســـون»'),
-  PromptItem('سناریو واقعی', 'looking_down', '۳۳. رو به پایین', 'سرت رو پایین بگیر و بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'annoyed_frown', '۳۴. کلافه یا اخمو', 'با لحن کمی جدی و اخمو بگو: «هی آکسون»'),
-  PromptItem('صدای آرام', 'whisper_02', '۳۵. نجوا (تکرار دوم)', 'دوباره خیلی یواش بگو: «هی آکسون»'),
-  PromptItem('صدای بلند', 'far_2m_02', '۳۶. صدا زدن از دور (تکرار)', 'از دور و با صدای بلند بگو: «هی آکسون»'),
-
-  PromptItem('لحن عادی', 'normal_07', '۳۷. عادی (تکرار هفتم)', 'خیلی ریلکس و عادی بگو: «هی آکسون»'),
-  PromptItem('تنوع لحن', 'stretch_hey', '۳۸. کشیده روی هی', 'بگو: «هِـــی آکسون»'),
-  PromptItem('سناریو واقعی', 'close_mic', '۳۹. خیلی نزدیک به میکروفون', 'نزدیک میکروفون بگو: «هی آکسون»'),
-  PromptItem('سرعت بالا', 'fast_02', '۴۰. سریع (تکرار دوم)', 'دوباره تند و سریع بگو: «هی آکسون»'),
-  PromptItem('سناریو واقعی', 'walking_room', '۴۱. در حال راه رفتن در اتاق', 'کمی حرکت کن و بگو: «هی آکسون»'),
-  PromptItem('لحن عادی', 'normal_08', '۴۲. عادی (تکرار هشتم)', 'دوباره معمولی بگو: «هی آکسون»'),
-
-  PromptItem('محیط پرنویز', 'noisy_music_01', '۴۳. با صدای موزیک یا تلویزیون', 'یه آهنگ یا ویدیو پخش کن و بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_music_02', '۴۴. با موزیک در پس‌زمینه (۲)', 'دوباره با صدای پس‌زمینه بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_typing', '۴۵. همراه با صدای تایپ کیبورد', 'حین زدن دکمه‌های کیبورد بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_ambient', '۴۶. با صدای محیط (پنکه/پنجره)', 'در حالت عادی اتاق بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_loud', '۴۷. صدای بلندتر از موزیک', 'روی صدای آهنگ بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_fast', '۴۸. سریع با نویز محیط', 'تند و با صدای پس‌زمینه بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'noisy_normal', '۴۹. عادی با نویز محیط', 'معمولی با صدای پس‌زمینه بگو: «هی آکسون»'),
-  PromptItem('محیط پرنویز', 'freestyle_final', '۵۰. آخرین بار به دلخواه خودت!', 'هر طور راحت‌تری بگو: «هی آکسون»'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_01', title: '۱. عادی و طبیعی', phrase: 'هی آکسون', desc: 'خیلی معمولی و روزمره بگو'),
+  PromptItem(category: 'سرعت بالا', slug: 'fast_01', title: '۲. سریع و خودمونی', phrase: 'هی آکسون', desc: 'کمی تندتر و محاوره‌ای بگو'),
+  PromptItem(category: 'صدای آرام', slug: 'quiet_01', title: '۳. آروم و یواش', phrase: 'هی آکسون', desc: 'با صدای آروم بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'loud_01', title: '۴. بلند و رسا', phrase: 'هی آکسون', desc: 'با صدای بلند و واضح بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'question_01', title: '۵. لحن پرسشی', phrase: 'هی آکسون؟', desc: 'انگار سوال می‌پرسی بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'before_cmd', title: '۶. قبل از دستور', phrase: 'هی آکسون', desc: 'انگار می‌خوای کاری بهش بسپاری بگو'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_02', title: '۷. عادی (تکرار دوم)', phrase: 'هی آکسون', desc: 'دوباره معمولی و طبیعی بگو'),
+  PromptItem(category: 'سرعت بالا', slug: 'very_fast', title: '۸. خیلی سریع و سرهم', phrase: 'هی‌آکسون', desc: 'پشت سر هم و سریع بگو'),
+  PromptItem(category: 'صدای آرام', slug: 'whisper_01', title: '۹. نجوا / نصف شب', phrase: 'هی آکسون', desc: 'خیلی یواش و نزدیک میکروفون بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'energetic_01', title: '۱۰. پرانرژی و محکم', phrase: 'هی آکسون!', desc: 'خیلی پرانرژی و محکم بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'tired_stretched', title: '۱۱. خسته و کشیده', phrase: 'هِــی آکسون', desc: 'با لحن خسته و ریلکس بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'short_pause', title: '۱۲. با مکث کوتاه وسطش', phrase: 'هی... آکسون', desc: 'با نیم ثانیه مکث بین دو کلمه بگو'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_03', title: '۱۳. عادی (تکرار سوم)', phrase: 'هی آکسون', desc: 'یک بار دیگر معمولی بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'far_2m_01', title: '۱۴. فاصله ۱.۵ تا ۲ متری', phrase: 'هی آکسون', desc: 'کمی از سیستم فاصله بگیر و صداش بزن'),
+  PromptItem(category: 'تنوع لحن', slug: 'friendly_smile', title: '۱۵. خوشحال و صمیمی', phrase: 'هی آکسون', desc: 'با لبخند و لحن صمیمی بگو'),
+  PromptItem(category: 'سرعت بالا', slug: 'hurried', title: '۱۶. عجله‌ای', phrase: 'هی آکسون!', desc: 'انگار عجله داری بگو'),
+  PromptItem(category: 'صدای آرام', slug: 'soft_clear', title: '۱۷. ملایم و شمرده', phrase: 'هی آکسون', desc: 'آروم و کاملاً شمرده بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'turned_right', title: '۱۸. چرخیده به سمت راست', phrase: 'هی آکسون', desc: 'سرت رو بچرخون سمت راست و بگو'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_04', title: '۱۹. عادی (تکرار چهارم)', phrase: 'هی آکسون', desc: 'معمولی و روان بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'serious_cmd', title: '۲۰. جدی و دستوری', phrase: 'هی آکسون', desc: 'با لحن جدی و قاطع بگو'),
+  PromptItem(category: 'سرعت بالا', slug: 'fast_short', title: '۲۱. سریع و کوتاه', phrase: 'هی آکسون', desc: 'خیلی سریع و بریده بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'loud_02', title: '۲۲. بلند (تکرار دوم)', phrase: 'هی آکسون', desc: 'دوباره با صدای بلند بگو'),
+  PromptItem(category: 'صدای آرام', slug: 'morning_voice', title: '۲۳. صدای صبحگاهی', phrase: 'هی آکسون', desc: 'انگار تازه بیدار شدی و صدات بم‌تره'),
+  PromptItem(category: 'سناریو واقعی', slug: 'turned_left', title: '۲۴. چرخیده به سمت چپ', phrase: 'هی آکسون', desc: 'سرت رو بچرخون سمت چپ و بگو'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_05', title: '۲۵. عادی (تکرار پنجم)', phrase: 'هی آکسون', desc: 'دوباره عادی بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'question_02', title: '۲۶. لحن پرسشی (تکرار)', phrase: 'هی آکسون؟', desc: 'دوباره با لحن سوالی بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'leaned_back', title: '۲۷. تکیه داده به صندلی', phrase: 'هی آکسون', desc: 'کاملاً لم بده عقب و بگو'),
+  PromptItem(category: 'سرعت بالا', slug: 'busy_fast', title: '۲۸. وسط کار با عجله', phrase: 'هی آکسون', desc: 'انگار سرت شلوغه و حواست جای دیگه‌ست'),
+  PromptItem(category: 'صدای آرام', slug: 'quiet_02', title: '۲۹. آروم (تکرار دوم)', phrase: 'هی آکسون', desc: 'دوباره با صدای آروم بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'energetic_02', title: '۳۰. پرانرژی (تکرار دوم)', phrase: 'هی آکسون!', desc: 'دوباره با انرژی بالا بگو'),
+  PromptItem(category: 'لحن عادی', slug: 'normal_06', title: '۳۱. عادی (تکرار ششم)', phrase: 'هی آکسون', desc: 'با ریتم طبیعی خودت بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'stretch_axon', title: '۳۲. کشیده روی آکسون', phrase: 'هی آکســـون', desc: 'بخش دوم رو کمی بکش'),
+  PromptItem(category: 'سناریو واقعی', slug: 'looking_down', title: '۳۳. رو به پایین', phrase: 'هی آکسون', desc: 'سرت رو پایین بگیر (مثل نگاه به گوشی) و بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'annoyed_frown', title: '۳۴. کلافه یا اخمو', phrase: 'هی آکسون', desc: 'با لحن کمی کلافه یا اخمو بگو'),
+  PromptItem(category: 'صدای آرام', slug: 'whisper_02', title: '۳۵. نجوا (تکرار دوم)', phrase: 'هی آکسون', desc: 'دوباره خیلی یواش و نزدیک بگو'),
+  PromptItem(category: 'صدای بلند', slug: 'far_2m_02', title: '۳۶. صدا زدن از دور (تکرار)', phrase: 'هی آکسون', desc: 'از دور و با صدای بلند بگو'),
+  PromptItem(category: 'تنوع لحن', slug: 'stretch_hey', title: '۳۷. کشیده روی هی', phrase: 'هِـــی آکسون', desc: 'کلمه «هی» رو کمی کشیده بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'close_mic', title: '۳۸. خیلی نزدیک به میکروفون', phrase: 'هی آکسون', desc: 'خیلی نزدیک میکروفون بگو'),
+  PromptItem(category: 'سناریو واقعی', slug: 'walking_room', title: '۳۹. در حال حرکت در اتاق', phrase: 'هی آکسون', desc: 'حین کمی حرکت کردن بگو'),
+  PromptItem(category: 'محیط پرنویز', slug: 'noisy_music_01', title: '۴۰. با صدای موزیک یا ویدیو', phrase: 'هی آکسون', desc: 'یه آهنگ/ویدیو پخش کن و همزمان بگو'),
+  PromptItem(category: 'محیط پرنویز', slug: 'noisy_typing', title: '۴۱. همراه با تایپ کیبورد', phrase: 'هی آکسون', desc: 'حین زدن دکمه‌های کیبورد بگو'),
+  PromptItem(category: 'محیط پرنویز', slug: 'noisy_loud', title: '۴۲. آخرین بار به دلخواه!', phrase: 'هی آکسون', desc: 'هر طور راحت‌تری (ترجیحاً با نویز محیط) بگو'),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_axon_only_01',
+    title: '۴۳. فقط «آکسون» خالی',
+    phrase: 'آکسون',
+    desc: 'بدون کلمه «هی»، فقط معمولی بگو آکسون',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_axon_only_02',
+    title: '۴۴. «آکسون» خالی (تکرار)',
+    phrase: 'آکسون',
+    desc: 'دوباره بدون «هی»، کمی سریع یا بلندتر بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_vaksan',
+    title: '۴۵. کلمه مشابه: واکسن',
+    phrase: 'هی واکسن',
+    desc: 'طبیعی بگو: «هی واکسن» (یا فقط واکسن)',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_ehsan',
+    title: '۴۶. کلمه مشابه: هی احسان',
+    phrase: 'هی احسان',
+    desc: 'انگار دوستت رو صدا می‌زنی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_asan',
+    title: '۴۷. کلمه مشابه: خیلی آسون',
+    phrase: 'خیلی آسون',
+    desc: 'معمولی و روان بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_aks_oon',
+    title: '۴۸. کلمه مشابه: هی عکسِ اون',
+    phrase: 'هی عکسِ اون',
+    desc: 'محاوره‌ای و معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_oxford',
+    title: '۴۹. کلمه مشابه: آکسفورد',
+    phrase: 'آکسفورد',
+    desc: 'معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_hey_agha',
+    title: '۵۰. کلمه مشابه: هی آقا',
+    phrase: 'هی آقا',
+    desc: 'معمولی و روزمره بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_hey_hasti',
+    title: '۵۱. کلمه مشابه: هی هستی؟',
+    phrase: 'هی هستی؟',
+    desc: 'با لحن پرسشی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_asansor',
+    title: '۵۲. کلمه مشابه: آسانسور',
+    phrase: 'آسانسور',
+    desc: 'معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_hey_salam',
+    title: '۵۳. کلمه مشابه: هی سلام',
+    phrase: 'هی سلام',
+    desc: 'صمیمی و معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'گفتار عادی (منفی)',
+    slug: 'neg_normal_speech',
+    title: '۵۴. یک جمله معمولی فارسی',
+    phrase: 'امروز هوا چطوره؟',
+    desc: 'این جمله (یا هر جمله کوتاه دیگه‌ای) رو معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'نویز پس‌زمینه (منفی)',
+    slug: 'neg_room_silence',
+    title: '۵۵. سکوت و صدای اتاق',
+    phrase: '🤫 ۲ ثانیه هیچی نگو',
+    desc: 'ضبط رو بزن، ۲ ثانیه سکوت کن تا صدای عادی میکروفونت ثبت شه و بعد متوقف کن',
+    isNegative: true,
+  ),
 ];
 
 class RecorderHomePage extends StatefulWidget {
@@ -121,11 +231,18 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
   int _screen = 0;
   int _step = 0;
   bool _isRecording = false;
+  bool _isBusy = false;
   bool _isLoading = true;
   double _amplitude = 0.0;
-  StreamSubscription<Amplitude>? _ampSub;
+  Timer? _ampTimer;
+  Timer? _maxDurationTimer;
+  DateTime? _lastToggleAt;
+  DateTime? _recordStartAt;
+
   String _userName = 'speaker';
-  String _statusText = 'روی دکمه بزن (یا Space) و بگو «هی آکسون»';
+  String _gender = 'unspecified';
+  String _micType = 'laptop';
+  String _statusText = 'روی دکمه بزن (یا Space) و عبارت بالا رو بگو';
   String _zipPath = '';
 
   Directory? _sessionDir;
@@ -134,6 +251,8 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
 
   bool _hasSavedSession = false;
   String _savedUserName = '';
+  String _savedGender = 'unspecified';
+  String _savedMicType = 'laptop';
   int _savedStep = 0;
   List<String?> _savedPaths = List.filled(kPrompts.length, null);
 
@@ -145,7 +264,8 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
 
   @override
   void dispose() {
-    _ampSub?.cancel();
+    _maxDurationTimer?.cancel();
+    _ampTimer?.cancel();
     _recorder.dispose();
     _nameCtrl.dispose();
     _focusNode.dispose();
@@ -164,6 +284,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
       try {
         final content = await _stateFile!.readAsString();
         final data = jsonDecode(content) as Map<String, dynamic>;
+        final schemaVersion = (data['schemaVersion'] as int?) ?? 1;
         final user = (data['userName'] as String?) ?? 'speaker';
         final completed = (data['completed'] as bool?) ?? false;
         final savedZip = (data['zipPath'] as String?) ?? '';
@@ -172,7 +293,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
           _userName = user;
           _zipPath = savedZip;
           _screen = 2;
-        } else {
+        } else if (schemaVersion == kSessionSchemaVersion) {
           final step = (data['step'] as int?) ?? 0;
           final rawPaths = (data['paths'] as List<dynamic>?) ?? [];
 
@@ -189,6 +310,8 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
           if (validCount > 0 && step < kPrompts.length) {
             _hasSavedSession = true;
             _savedUserName = user;
+            _savedGender = (data['gender'] as String?) ?? 'unspecified';
+            _savedMicType = (data['micType'] as String?) ?? 'laptop';
             _savedStep = step;
             _savedPaths = restoredPaths;
           }
@@ -204,7 +327,10 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
   Future<void> _saveProgress({bool completed = false, String zipPath = ''}) async {
     if (_stateFile == null) return;
     final payload = {
+      'schemaVersion': kSessionSchemaVersion,
       'userName': _userName,
+      'gender': _gender,
+      'micType': _micType,
       'step': _step,
       'paths': _recordedPaths,
       'completed': completed,
@@ -241,7 +367,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
   }
 
   Future<void> _confirmAndResetFromRecordScreen() async {
-    if (_isRecording) return;
+    if (_isRecording || _isBusy) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => Directionality(
@@ -308,7 +434,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
       _screen = 1;
       _step = 0;
       _amplitude = 0.0;
-      _statusText = 'روی دکمه بزن (یا Space) و بگو «هی آکسون»';
+      _statusText = 'روی دکمه بزن (یا Space) و عبارت بالا رو بگو';
     });
     _focusNode.requestFocus();
   }
@@ -317,6 +443,8 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
     if (!await _ensureMicPermission()) return;
 
     _userName = _savedUserName;
+    _gender = _savedGender;
+    _micType = _savedMicType;
     for (int i = 0; i < kPrompts.length; i++) {
       _recordedPaths[i] = _savedPaths[i];
     }
@@ -325,74 +453,128 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
       _screen = 1;
       _step = _savedStep;
       _amplitude = 0.0;
-      _statusText = 'ادامه ضبط از مرحله ${_savedStep + 1}...';
+      _statusText = 'ادامه ضبط از مرحله ${toPersianDigits(_savedStep + 1)}...';
     });
     _focusNode.requestFocus();
   }
 
   double _mapAmplitude(double db) {
-    if (!db.isFinite || db <= -42.0) return 0.0;
-    final norm = ((db + 42.0) / 34.0).clamp(0.0, 1.0);
-    return pow(norm, 1.65).toDouble();
+    if (!db.isFinite || db <= -65.0) return 0.0;
+    final norm = ((db + 65.0) / 55.0).clamp(0.0, 1.0);
+    return pow(norm, 0.85).toDouble();
   }
 
-  Future<void> _toggleRecord() async {
-    if (!_isRecording) {
-      final stepStr = (_step + 1).toString().padLeft(2, '0');
-      final slug = kPrompts[_step].slug;
-      final fileName = '${_userName}_${stepStr}_$slug.wav';
-      final path = '${_sessionDir!.path}/$fileName';
+  Future<void> _toggleRecord({bool forceAutoStop = false}) async {
+    if (_isBusy) return;
 
-      await _recorder.start(
-        const RecordConfig(
-          encoder: AudioEncoder.wav,
-          sampleRate: 16000,
-          numChannels: 1,
-        ),
-        path: path,
-      );
+    final now = DateTime.now();
+    if (!forceAutoStop &&
+        _lastToggleAt != null &&
+        now.difference(_lastToggleAt!).inMilliseconds < 320) {
+      return;
+    }
+    _lastToggleAt = now;
+    _isBusy = true;
 
-      await _ampSub?.cancel();
-      _ampSub = _recorder
-          .onAmplitudeChanged(const Duration(milliseconds: 45))
-          .listen((amp) {
-        if (!mounted || !_isRecording) return;
-        setState(() {
-          _amplitude = _mapAmplitude(amp.current);
-        });
-      });
+    try {
+      if (!_isRecording) {
+        final prompt = kPrompts[_step];
+        final stepStr = (_step + 1).toString().padLeft(2, '0');
+        final prefix = prompt.isNegative ? 'neg' : 'pos';
+        final fileName = '${_userName}_${prefix}_${stepStr}_${prompt.slug}.wav';
+        final path = '${_sessionDir!.path}/$fileName';
 
-      setState(() {
-        _isRecording = true;
-        _amplitude = 0.0;
-        _statusText = '● در حال ضبط... بگو «هی آکسون» و دوباره بزن';
-      });
-    } else {
-      await _ampSub?.cancel();
-      _ampSub = null;
-      final path = await _recorder.stop();
-      setState(() {
-        _isRecording = false;
-        _amplitude = 0.0;
-      });
+        await _recorder.start(
+          const RecordConfig(
+            encoder: AudioEncoder.wav,
+            sampleRate: 16000,
+            numChannels: 1,
+          ),
+          path: path,
+        );
 
-      if (path != null) {
-        _recordedPaths[_step] = path;
-        if (_step + 1 >= kPrompts.length) {
-          await _createZipAndFinish();
-        } else {
+        _recordStartAt = DateTime.now();
+
+        if (mounted) {
           setState(() {
-            _step++;
-            _statusText = '✓ ذخیره شد! پیشرفتت هم خودکار ثبت شد.';
+            _isRecording = true;
+            _amplitude = 0.0;
+            _statusText = prompt.slug == 'neg_room_silence'
+                ? '● در حال ضبط صدای اتاق... ${toPersianDigits(2)} ثانیه سکوت کن و دوباره بزن'
+                : '● در حال ضبط... بگو «${prompt.phrase}» و دوباره بزن';
           });
-          await _saveProgress();
+        }
+
+        _maxDurationTimer?.cancel();
+        _maxDurationTimer = Timer(const Duration(seconds: 4), () {
+          if (mounted && _isRecording) {
+            _toggleRecord(forceAutoStop: true);
+          }
+        });
+
+        _ampTimer?.cancel();
+        _ampTimer = Timer.periodic(const Duration(milliseconds: 50), (_) async {
+          if (!mounted || !_isRecording) return;
+          try {
+            final amp = await _recorder.getAmplitude();
+            if (!mounted || !_isRecording) return;
+            setState(() {
+              _amplitude = _mapAmplitude(amp.current);
+            });
+          } catch (_) {}
+        });
+      } else {
+        _maxDurationTimer?.cancel();
+        _maxDurationTimer = null;
+        _ampTimer?.cancel();
+        _ampTimer = null;
+
+        final durationMs = _recordStartAt != null
+            ? DateTime.now().difference(_recordStartAt!).inMilliseconds
+            : 1000;
+        final path = await _recorder.stop();
+
+        if (mounted) {
+          setState(() {
+            _isRecording = false;
+            _amplitude = 0.0;
+          });
+        }
+
+        if (path != null) {
+          if (durationMs < 350) {
+            final f = File(path);
+            if (await f.exists()) await f.delete();
+            if (mounted) {
+              setState(() {
+                _statusText = '⚠️ ضبط خیلی کوتاه بود! دوباره بزن، کامل بگو و بعد متوقف کن.';
+              });
+            }
+          } else {
+            _recordedPaths[_step] = path;
+            if (_step + 1 >= kPrompts.length) {
+              await _createZipAndFinish();
+            } else {
+              if (mounted) {
+                setState(() {
+                  _step++;
+                  _statusText = forceAutoStop
+                      ? '✓ خودکار متوقف و ذخیره شد! آماده مرحله بعد.'
+                      : '✓ ذخیره شد!';
+                });
+              }
+              await _saveProgress();
+            }
+          }
         }
       }
+    } finally {
+      _isBusy = false;
     }
   }
 
   Future<void> _prevStep() async {
-    if (_isRecording || _step == 0) return;
+    if (_isRecording || _isBusy || _step == 0) return;
     setState(() {
       _step--;
       _statusText = 'برگشتی به مرحله قبل؛ دوباره ضبط کن';
@@ -402,19 +584,46 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
 
   Future<void> _createZipAndFinish() async {
     final archive = Archive();
-    for (final path in _recordedPaths) {
+    int posCount = 0;
+    int negCount = 0;
+
+    for (int i = 0; i < kPrompts.length; i++) {
+      final path = _recordedPaths[i];
       if (path == null) continue;
       final file = File(path);
       if (await file.exists()) {
         final bytes = await file.readAsBytes();
-        final name = file.uri.pathSegments.last;
-        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+        final fileName = file.uri.pathSegments.last;
+        final isNeg = kPrompts[i].isNegative;
+        final folder = isNeg ? 'negative' : 'positive';
+        if (isNeg) {
+          negCount++;
+        } else {
+          posCount++;
+        }
+        archive.addFile(ArchiveFile('$folder/$fileName', bytes.length, bytes));
       }
     }
 
+    final metadata = {
+      'userName': _userName,
+      'gender': _gender,
+      'micType': _micType,
+      'platform': Platform.operatingSystem,
+      'sampleRate': 16000,
+      'channels': 1,
+      'format': 'wav_pcm16',
+      'positiveCount': posCount,
+      'negativeCount': negCount,
+      'totalCount': posCount + negCount,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    final metaBytes = utf8.encode(const JsonEncoder.withIndent('  ').convert(metadata));
+    archive.addFile(ArchiveFile('metadata.json', metaBytes.length, metaBytes));
+
     final zipBytes = ZipEncoder().encode(archive);
     final outDir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
-    final outFile = File('${outDir.path}/axon_voices_$_userName.zip');
+    final outFile = File('${outDir.path}${Platform.pathSeparator}axon_voices_$_userName.zip');
     await outFile.writeAsBytes(zipBytes!);
 
     if (_sessionDir != null && await _sessionDir!.exists()) {
@@ -427,10 +636,44 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
 
     await _saveProgress(completed: true, zipPath: outFile.path);
 
-    setState(() {
-      _zipPath = outFile.path;
-      _screen = 2;
-    });
+    if (mounted) {
+      setState(() {
+        _zipPath = outFile.path;
+        _screen = 2;
+      });
+    }
+  }
+
+  Future<void> _openZipFolder() async {
+    if (_zipPath.isEmpty) return;
+    try {
+      if (Platform.isWindows) {
+        final winPath = _zipPath.replaceAll('/', '\\');
+        await Process.start(
+          'explorer.exe',
+          ['/select,', winPath],
+          mode: ProcessStartMode.detached,
+        );
+      } else if (Platform.isMacOS) {
+        await Process.start(
+          'open',
+          ['-R', _zipPath],
+          mode: ProcessStartMode.detached,
+        );
+      } else if (Platform.isLinux) {
+        await Process.start(
+          'xdg-open',
+          [File(_zipPath).parent.path],
+          mode: ProcessStartMode.detached,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('امکان باز کردن پوشه نبود؛ فایل در پوشه Downloads ذخیره شده است.')),
+        );
+      }
+    }
   }
 
   @override
@@ -443,44 +686,84 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             child: Container(color: const Color(0xFF0B0C14).withAlpha(115)),
           ),
           Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                child: Container(
-                  width: 460,
-                  margin: const EdgeInsets.all(20),
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF181926).withAlpha(220),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFF89B4FA).withAlpha(65),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(140),
-                        blurRadius: 30,
-                        spreadRadius: 5,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                  child: Container(
+                    width: 470,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF181926).withAlpha(224),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: (_screen == 1 && kPrompts[_step].isNegative
+                                ? const Color(0xFFFAB387)
+                                : const Color(0xFF89B4FA))
+                            .withAlpha(75),
+                        width: 1.2,
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(140),
+                          blurRadius: 30,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 180,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : _screen == 0
+                            ? _buildStartScreen()
+                            : _screen == 1
+                                ? _buildRecordScreen()
+                                : _buildDoneScreen(),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                    height: 180,
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                      : _screen == 0
-                      ? _buildStartScreen()
-                      : _screen == 1
-                      ? _buildRecordScreen()
-                      : _buildDoneScreen(),
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChoiceChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: selected
+                ? const Color(0xFF89B4FA).withAlpha(45)
+                : const Color(0xFF24273A),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected ? const Color(0xFF89B4FA) : const Color(0xFF363A4F),
+              width: 1.1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            toPersianDigits(label),
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              color: selected ? const Color(0xFF89B4FA) : const Color(0xFFA6ADC8),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -495,23 +778,25 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             color: const Color(0xFF89B4FA).withAlpha(30),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.mic_rounded, size: 36, color: Color(0xFF89B4FA)),
+          child: const Icon(Icons.mic_rounded, size: 34, color: Color(0xFF89B4FA)),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         const Text(
           'ضبط صدای «هی آکسون»',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFF9E2AF)),
         ),
-        const SizedBox(height: 10),
-        const Text(
-          '۵۰ مرحله کوتاه و متنوع داریم.\nهر زمان خسته شدی، برنامه رو ببند؛ سری بعد از ادامه‌اش میره!',
+        const SizedBox(height: 8),
+        Text(
+          toPersianDigits(
+            '${kPrompts.length} مرحله کوتاه داریم (۴۲ بار «هی آکسون» + ۱۳ کلمه مشابه).\nهر زمان خسته شدی برنامه رو ببند؛ سری بعد از ادامه‌اش میره!',
+          ),
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13.5, color: Color(0xFFBAC2DE), height: 1.7),
+          style: const TextStyle(fontSize: 13, color: Color(0xFFBAC2DE), height: 1.65),
         ),
         if (_hasSavedSession) ...[
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFFA6E3A1).withAlpha(22),
               borderRadius: BorderRadius.circular(14),
@@ -520,20 +805,20 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             child: Column(
               children: [
                 Text(
-                  'یک ضبط ناتمام برای «$_savedUserName» وجود دارد (مرحله ${_savedStep + 1} از ${kPrompts.length})',
+                  'یک ضبط ناتمام برای «$_savedUserName» وجود دارد (مرحله ${toPersianDigits(_savedStep + 1)} از ${toPersianDigits(kPrompts.length)})',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFFA6E3A1), fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 12.5, color: Color(0xFFA6E3A1), fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
-                  height: 44,
+                  height: 42,
                   child: ElevatedButton.icon(
                     onPressed: _resumeSavedSession,
                     icon: const Icon(Icons.play_arrow_rounded),
                     label: Text(
-                      'ادامه از مرحله ${_savedStep + 1}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      'ادامه از مرحله ${toPersianDigits(_savedStep + 1)}',
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFA6E3A1),
@@ -545,7 +830,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           const Text(
             'یا شروع یک ضبط جدید از ابتدا:',
             style: TextStyle(fontSize: 12, color: Color(0xFF7F849C)),
@@ -557,17 +842,50 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
           textAlign: TextAlign.center,
           onSubmitted: (_) => _startNewSession(),
           decoration: InputDecoration(
-            hintText: 'اسمت (انگلیسی، مثلاً ali)',
+            hintText: 'اسمت (انگلیسی، مثلاً Pouya)',
             hintStyle: const TextStyle(color: Color(0xFF6C7086)),
             filled: true,
             fillColor: const Color(0xFF24273A),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildChoiceChip(
+              label: 'آقا',
+              selected: _gender == 'male',
+              onTap: () => setState(() => _gender = 'male'),
+            ),
+            const SizedBox(width: 8),
+            _buildChoiceChip(
+              label: 'خانم',
+              selected: _gender == 'female',
+              onTap: () => setState(() => _gender = 'female'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _buildChoiceChip(
+              label: 'میکروفون لپ‌تاپ',
+              selected: _micType == 'laptop',
+              onTap: () => setState(() => _micType = 'laptop'),
+            ),
+            const SizedBox(width: 8),
+            _buildChoiceChip(
+              label: 'هدست / هندزفری',
+              selected: _micType == 'headset',
+              onTap: () => setState(() => _micType = 'headset'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
           height: 48,
@@ -591,6 +909,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
   Widget _buildRecordScreen() {
     final prompt = kPrompts[_step];
     final progress = (_step + 1) / kPrompts.length;
+    final accentColor = prompt.isNegative ? const Color(0xFFFAB387) : const Color(0xFF89B4FA);
 
     return KeyboardListener(
       focusNode: _focusNode,
@@ -609,16 +928,16 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF89B4FA).withAlpha(35),
+                  color: accentColor.withAlpha(35),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  prompt.category,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF89B4FA), fontWeight: FontWeight.bold),
+                  toPersianDigits(prompt.category),
+                  style: TextStyle(fontSize: 12, color: accentColor, fontWeight: FontWeight.bold),
                 ),
               ),
               Text(
-                'مرحله ${_step + 1} از ${kPrompts.length}',
+                'مرحله ${toPersianDigits(_step + 1)} از ${toPersianDigits(kPrompts.length)}',
                 style: const TextStyle(fontSize: 13, color: Color(0xFFA6ADC8)),
               ),
             ],
@@ -630,71 +949,109 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
               value: progress,
               minHeight: 6,
               backgroundColor: const Color(0xFF313244),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF89B4FA)),
+              valueColor: AlwaysStoppedAnimation<Color>(accentColor),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Text(
-            prompt.title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFF9E2AF)),
+            toPersianDigits(prompt.title),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: prompt.isNegative ? const Color(0xFFFAB387) : const Color(0xFFF9E2AF),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            decoration: BoxDecoration(
+              color: accentColor.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: accentColor.withAlpha(85)),
+            ),
+            child: Text(
+              toPersianDigits(prompt.phrase),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            prompt.desc,
+            toPersianDigits(prompt.desc),
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 15, color: Color(0xFFCDD6F4)),
+            style: const TextStyle(fontSize: 13.5, color: Color(0xFFCDD6F4), height: 1.5),
           ),
-          const SizedBox(height: 16),
+          if (prompt.isNegative) ...[
+            const SizedBox(height: 4),
+            const Text(
+              'این مرحله برای جلوگیری از بیدار شدن اشتباهی مدل روی کلمات مشابهه',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 11.5, color: Color(0xFFFAB387)),
+            ),
+          ],
+          const SizedBox(height: 12),
           SiriOrbVisualizer(
             isRecording: _isRecording,
             amplitude: _amplitude,
-            onTap: _toggleRecord,
+            onTap: () => _toggleRecord(),
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton.icon(
-              onPressed: _toggleRecord,
-              icon: Icon(_isRecording ? Icons.stop_rounded : Icons.mic_rounded, size: 24),
-              label: Text(
-                _isRecording ? 'در حال ضبط... (برای توقف بزن)' : 'شروع ضبط  (Space)',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isRecording ? const Color(0xFFF38BA8) : const Color(0xFFA6E3A1),
-                foregroundColor: const Color(0xFF11111B),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            _statusText,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: _isRecording ? const Color(0xFFF38BA8) : const Color(0xFF9399B2),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton.icon(
-                onPressed: _step > 0 && !_isRecording ? _prevStep : null,
-                icon: const Icon(Icons.undo_rounded, size: 18),
-                label: const Text('مرحله قبل'),
-              ),
-              TextButton.icon(
-                onPressed: !_isRecording ? _confirmAndResetFromRecordScreen : null,
-                icon: const Icon(Icons.restart_alt_rounded, size: 18),
-                label: const Text('شروع مجدد از صفر'),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFFF38BA8),
+          const SizedBox(height: 12),
+          ExcludeFocus(
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _toggleRecord(),
+                    icon: Icon(_isRecording ? Icons.stop_rounded : Icons.mic_rounded, size: 24),
+                    label: Text(
+                      _isRecording ? 'در حال ضبط... (برای توقف بزن)' : 'شروع ضبط  (Space)',
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isRecording ? const Color(0xFFF38BA8) : const Color(0xFFA6E3A1),
+                      foregroundColor: const Color(0xFF11111B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  toPersianDigits(_statusText),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _isRecording ? const Color(0xFFF38BA8) : const Color(0xFF9399B2),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _step > 0 && !_isRecording ? _prevStep : null,
+                      icon: const Icon(Icons.undo_rounded, size: 18),
+                      label: const Text('مرحله قبل'),
+                    ),
+                    TextButton.icon(
+                      onPressed: !_isRecording ? _confirmAndResetFromRecordScreen : null,
+                      icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                      label: const Text('شروع مجدد از صفر'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFF38BA8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -706,16 +1063,16 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(Icons.check_circle_rounded, size: 54, color: Color(0xFFA6E3A1)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         const Text(
           'دمت گرم! تمام شد 🎉',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFA6E3A1)),
         ),
-        const SizedBox(height: 10),
-        const Text(
-          'فایل زیپ ۵۰ صدا در مسیر زیر ذخیره شد. همینو توی تلگرام برام بفرست:',
+        const SizedBox(height: 8),
+        Text(
+          'فایل زیپ ${toPersianDigits(kPrompts.length)} صدا در مسیر زیر ذخیره شد. همینو توی تلگرام برام بفرست:',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, color: Color(0xFFBAC2DE), height: 1.6),
+          style: const TextStyle(fontSize: 14, color: Color(0xFFBAC2DE), height: 1.6),
         ),
         const SizedBox(height: 14),
         Container(
@@ -731,22 +1088,17 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             style: const TextStyle(fontSize: 12, color: Color(0xFF89B4FA)),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         SizedBox(
           width: double.infinity,
           height: 46,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: _zipPath));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('مسیر فایل کپی شد!')),
-              );
-            },
-            icon: const Icon(Icons.copy_rounded, size: 18),
-            label: const Text('کپی کردن مسیر فایل', style: TextStyle(fontWeight: FontWeight.bold)),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFCDD6F4),
-              side: const BorderSide(color: Color(0xFF45475A)),
+          child: ElevatedButton.icon(
+            onPressed: _openZipFolder,
+            icon: const Icon(Icons.folder_open_rounded, size: 19),
+            label: const Text('باز کردن پوشه فایل زیپ', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA6E3A1),
+              foregroundColor: const Color(0xFF11111B),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -754,7 +1106,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
         const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 46,
           child: ElevatedButton.icon(
             onPressed: () {
               Clipboard.setData(const ClipboardData(text: '@$kTelegramUsername'));
@@ -765,7 +1117,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             icon: const Icon(Icons.alternate_email_rounded, size: 18),
             label: const Text(
               'کپی کردن آیدی تلگرام (@$kTelegramUsername)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF24A1DE),
@@ -774,11 +1126,11 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         TextButton.icon(
           onPressed: _resetToStartScreen,
           icon: const Icon(Icons.refresh_rounded, size: 18),
-          label: const Text('شروع ضبط جدید از صفر'),
+          label: const Text('شروع ضبط جدید'),
         ),
       ],
     );
@@ -819,7 +1171,7 @@ class _SiriOrbVisualizerState extends State<SiriOrbVisualizer>
         final rate = target > _smoothAmp ? 20.0 : 9.5;
         _smoothAmp += (target - _smoothAmp) * (1.0 - exp(-dt * rate));
         if (_smoothAmp < 0.001) _smoothAmp = 0.0;
-        final speed = widget.isRecording ? (0.45 + _smoothAmp * 3.8) : 0.35;
+        final speed = widget.isRecording ? (0.85 + _smoothAmp * 4.2) : 0.65;
         _time += dt * speed;
         setState(() {});
       }
@@ -839,8 +1191,8 @@ class _SiriOrbVisualizerState extends State<SiriOrbVisualizer>
       child: GestureDetector(
         onTap: widget.onTap,
         child: SizedBox(
-          width: 136,
-          height: 136,
+          width: 126,
+          height: 126,
           child: CustomPaint(
             painter: _SiriOrbPainter(
               time: _time,
@@ -869,8 +1221,10 @@ class _SiriOrbPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final voice = isRecording ? amplitude : 0.0;
-    final idlePulse = isRecording ? (sin(time * 2.0) * 0.4) : (sin(time * 1.1) * 0.6);
-    final baseR = (size.width * 0.24) + (voice * 17.5) + idlePulse;
+    final idlePulse = isRecording
+        ? (sin(time * 2.4) * 2.5)
+        : (sin(time * 1.8) * 2.0);
+    final baseR = (size.width * 0.25) + (voice * 17.5) + idlePulse;
 
     final haloPaint = Paint()
       ..shader = ui.Gradient.radial(
@@ -889,42 +1243,42 @@ class _SiriOrbPainter extends CustomPainter {
 
     const blobs = [
       (
-      colorA: Color(0xFF00F0FF),
-      colorB: Color(0xFF2979FF),
-      phase: 0.0,
-      dir: 1.0,
-      offsetAngle: 0.0,
-      scale: 1.0,
+        colorA: Color(0xFF00F0FF),
+        colorB: Color(0xFF2979FF),
+        phase: 0.0,
+        dir: 1.0,
+        offsetAngle: 0.0,
+        scale: 1.0,
       ),
       (
-      colorA: Color(0xFFFF2E93),
-      colorB: Color(0xFF7B2CBF),
-      phase: 2.1,
-      dir: -1.15,
-      offsetAngle: 2.1,
-      scale: 0.97,
+        colorA: Color(0xFFFF2E93),
+        colorB: Color(0xFF7B2CBF),
+        phase: 2.1,
+        dir: -1.15,
+        offsetAngle: 2.1,
+        scale: 0.97,
       ),
       (
-      colorA: Color(0xFF9D4EDD),
-      colorB: Color(0xFF00BBF9),
-      phase: 4.2,
-      dir: 0.85,
-      offsetAngle: 4.2,
-      scale: 0.94,
+        colorA: Color(0xFF9D4EDD),
+        colorB: Color(0xFF00BBF9),
+        phase: 4.2,
+        dir: 0.85,
+        offsetAngle: 4.2,
+        scale: 0.94,
       ),
       (
-      colorA: Color(0xFF64FFDA),
-      colorB: Color(0xFF536DFE),
-      phase: 1.1,
-      dir: -0.75,
-      offsetAngle: 5.1,
-      scale: 0.91,
+        colorA: Color(0xFF64FFDA),
+        colorB: Color(0xFF536DFE),
+        phase: 1.1,
+        dir: -0.75,
+        offsetAngle: 5.1,
+        scale: 0.91,
       ),
     ];
 
-    final wobbleStrength = voice < 0.02 ? 0.35 : (0.5 + voice * 18.5);
-    final orbitDist = voice < 0.02 ? 0.3 : (0.4 + voice * 9.5);
-    final activeMix = isRecording ? (0.35 + voice * 0.65) : 0.25;
+    final wobbleStrength = isRecording ? (3.2 + voice * 17.5) : 2.2;
+    final orbitDist = isRecording ? (2.4 + voice * 9.0) : 1.8;
+    final activeMix = isRecording ? (0.45 + voice * 0.55) : 0.35;
 
     for (final b in blobs) {
       final bx = center.dx + cos(time * 0.9 * b.dir + b.offsetAngle) * orbitDist;
