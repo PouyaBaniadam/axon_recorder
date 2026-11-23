@@ -17,7 +17,7 @@ void main() {
 const String kUiFont = 'Vazirmatn';
 const String kNastaliqFont = 'IranNastaliq';
 const String kTelegramUsername = 'pouyabaniadam';
-const int kSessionSchemaVersion = 2;
+const int kSessionSchemaVersion = 3;
 
 String toPersianDigits(Object input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -128,8 +128,16 @@ const List<PromptItem> kPrompts = [
   ),
   PromptItem(
     category: 'کلمه مشابه (منفی)',
+    slug: 'neg_roksa',
+    title: '۴۵. کلمه مشابه: هی روکسا',
+    phrase: 'هی روکسا',
+    desc: 'طبیعی بگو: «هی روکسا» (یا فقط روکسا)',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
     slug: 'neg_vaksan',
-    title: '۴۵. کلمه مشابه: واکسن',
+    title: '۴۶. کلمه مشابه: واکسن',
     phrase: 'هی واکسن',
     desc: 'طبیعی بگو: «هی واکسن» (یا فقط واکسن)',
     isNegative: true,
@@ -137,7 +145,7 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_ehsan',
-    title: '۴۶. کلمه مشابه: هی احسان',
+    title: '۴۷. کلمه مشابه: هی احسان',
     phrase: 'هی احسان',
     desc: 'انگار دوستت رو صدا می‌زنی بگو',
     isNegative: true,
@@ -145,7 +153,7 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_asan',
-    title: '۴۷. کلمه مشابه: خیلی آسون',
+    title: '۴۸. کلمه مشابه: خیلی آسون',
     phrase: 'خیلی آسون',
     desc: 'معمولی و روان بگو',
     isNegative: true,
@@ -153,23 +161,47 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_aks_oon',
-    title: '۴۸. کلمه مشابه: هی عکسِ اون',
+    title: '۴۹. کلمه مشابه: هی عکسِ اون',
     phrase: 'هی عکسِ اون',
     desc: 'محاوره‌ای و معمولی بگو',
     isNegative: true,
   ),
   PromptItem(
     category: 'کلمه مشابه (منفی)',
+    slug: 'neg_aks_begir',
+    title: '۵۰. کلمه مشابه: هی عکس بگیر',
+    phrase: 'هی عکس بگیر',
+    desc: 'محاوره‌ای و معمولی بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
     slug: 'neg_oxford',
-    title: '۴۹. کلمه مشابه: آکسفورد',
+    title: '۵۱. کلمه مشابه: آکسفورد',
     phrase: 'آکسفورد',
     desc: 'معمولی بگو',
     isNegative: true,
   ),
   PromptItem(
     category: 'کلمه مشابه (منفی)',
+    slug: 'neg_aknoon',
+    title: '۵۲. کلمه مشابه: اکنون',
+    phrase: 'اکنون',
+    desc: 'معمولی و واضح بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_akbar',
+    title: '۵۳. کلمه مشابه: هی اکبر',
+    phrase: 'هی اکبر',
+    desc: 'معمولی و روزمره بگو',
+    isNegative: true,
+  ),
+  PromptItem(
+    category: 'کلمه مشابه (منفی)',
     slug: 'neg_hey_agha',
-    title: '۵۰. کلمه مشابه: هی آقا',
+    title: '۵۴. کلمه مشابه: هی آقا',
     phrase: 'هی آقا',
     desc: 'معمولی و روزمره بگو',
     isNegative: true,
@@ -177,7 +209,7 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_hey_hasti',
-    title: '۵۱. کلمه مشابه: هی هستی؟',
+    title: '۵۵. کلمه مشابه: هی هستی؟',
     phrase: 'هی هستی؟',
     desc: 'با لحن پرسشی بگو',
     isNegative: true,
@@ -185,7 +217,7 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_asansor',
-    title: '۵۲. کلمه مشابه: آسانسور',
+    title: '۵۶. کلمه مشابه: آسانسور',
     phrase: 'آسانسور',
     desc: 'معمولی بگو',
     isNegative: true,
@@ -193,15 +225,23 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'کلمه مشابه (منفی)',
     slug: 'neg_hey_salam',
-    title: '۵۳. کلمه مشابه: هی سلام',
+    title: '۵۷. کلمه مشابه: هی سلام',
     phrase: 'هی سلام',
     desc: 'صمیمی و معمولی بگو',
     isNegative: true,
   ),
   PromptItem(
+    category: 'کلمه مشابه (منفی)',
+    slug: 'neg_hey_siri',
+    title: '۵۸. کلمه مشابه: هی سیری',
+    phrase: 'هی سیری',
+    desc: 'معمولی بگو (برای تداخل نداشتن با دستیارهای دیگه)',
+    isNegative: true,
+  ),
+  PromptItem(
     category: 'گفتار عادی (منفی)',
     slug: 'neg_normal_speech',
-    title: '۵۴. یک جمله معمولی فارسی',
+    title: '۵۹. یک جمله معمولی فارسی',
     phrase: 'امروز هوا چطوره؟',
     desc: 'این جمله (یا هر جمله کوتاه دیگه‌ای) رو معمولی بگو',
     isNegative: true,
@@ -209,7 +249,7 @@ const List<PromptItem> kPrompts = [
   PromptItem(
     category: 'نویز پس‌زمینه (منفی)',
     slug: 'neg_room_silence',
-    title: '۵۵. سکوت و صدای اتاق',
+    title: '۶۰. سکوت و صدای اتاق',
     phrase: '🤫 ۲ ثانیه هیچی نگو',
     desc: 'ضبط رو بزن، ۲ ثانیه سکوت کن تا صدای عادی میکروفونت ثبت شه و بعد متوقف کن',
     isNegative: true,
@@ -769,6 +809,9 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
   }
 
   Widget _buildStartScreen() {
+    final posTotal = kPrompts.where((p) => !p.isNegative).length;
+    final negTotal = kPrompts.length - posTotal;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -788,7 +831,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
         const SizedBox(height: 8),
         Text(
           toPersianDigits(
-            '${kPrompts.length} مرحله کوتاه داریم (۴۲ بار «هی آکسون» + ۱۳ کلمه مشابه).\nهر زمان خسته شدی برنامه رو ببند؛ سری بعد از ادامه‌اش میره!',
+            '${kPrompts.length} مرحله کوتاه داریم ($posTotal بار «هی آکسون» + $negTotal کلمه مشابه).\nهر زمان خسته شدی برنامه رو ببند؛ سری بعد از ادامه‌اش میره!',
           ),
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 13, color: Color(0xFFBAC2DE), height: 1.65),
@@ -1111,7 +1154,7 @@ class _RecorderHomePageState extends State<RecorderHomePage> {
             onPressed: () {
               Clipboard.setData(const ClipboardData(text: '@$kTelegramUsername'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('آیدی تلگرام (@$kTelegramUsername) کپی شد!')),
+                const SnackBar(content: Text('آیدی تلگرام ($kTelegramUsername@) کپی شد!')),
               );
             },
             icon: const Icon(Icons.alternate_email_rounded, size: 18),
